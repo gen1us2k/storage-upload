@@ -1,0 +1,6 @@
+package: api
+output: storage-api.gen.go
+generate:
+  echo-server: true
+  embedded-spec: true
+  models: true
