@@ -1,0 +1,50 @@
+@import './base.css';
+
+
+body {
+    display: flex;
+    place-items: center;
+}
+
+#app {
+    max-width: 1280px;
+    margin: 0 auto;
+    font-weight: normal;
+    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0 2rem;
+}
+
+button {
+    padding: .5em;
+    background: var(--vt-c-indigo);
+    color: var(--color-text);
+    border-radius: 2px;
+    border: 1px solid var(--vt-c-indigo);
+    margin-left: 1em;
+    cursor: pointer;
+}
+
+.drop-area {
+    border: 2px dashed #ccc;
+    padding: 1em;
+    margin: 1em 0;
+    cursor: pointer;
+}
+
+.error-message {
+    color: red;
+}
+
+ul {
+    margin-top: .5em;
+    list-style: unset;
+    padding-left: 0;
+}
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    margin: .2em 0;
+}
