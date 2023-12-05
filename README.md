@@ -9,15 +9,10 @@ The application is written in Go and as a prerequisite you need to have Go insta
 Running the application
 
 ```
-   go run cmd/storage/main.go
+   make build
+   ./storage
 ```
 
-Building it
-
-```
-   go build -o storage  cmd/storage/main.go
-
-```
 
 
 ## Running tests
