@@ -34,14 +34,15 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                fileName:
-                  type: string
-                  format: binary
+              type: string
+              format: binary
       responses:
         '201':
-          description: Null response
+          description: File response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
         default:
           description: unexpected error
           content:
@@ -55,14 +56,18 @@ components:
       required:
         - id
         - name
+        - path
+        - size
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
         filename:
           type: string
         path:
           type: string
+        size:
+          type: integer
+          format: int64
     FileList:
       type: array
       items:

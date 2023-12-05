@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"io"
+	"mime/multipart"
 
 	"github.com/gen1us2k/storage-upload/pkg/storage/filesystem"
 )
 
 type FileStorage interface {
-	SaveFile(io.Writer) error
+	SaveFile(*multipart.FileHeader) (string, error)
 }
 
 var _ FileStorage = &filesystem.FSStorage{}

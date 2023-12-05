@@ -27,12 +27,14 @@ func NewPostgres(dsn string) (*Postgres, error) {
 
 // Migrate runs migration against the created connection to a Postgres database.
 func (p *Postgres) Migrate() error {
-	schema := `CREATE TABLE IF NOT EXISTS files (
+	schema := `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE TABLE IF NOT EXISTS files (
 		id uuid DEFAULT uuid_generate_v4(),
 		filename VARCHAR(255) NOT NULL,
 		filepath VARCHAR(512) NOT NULL,
+        size INTEGER NOT NULL,
 		PRIMARY KEY(id)
-		);`
+    );`
 
 	if _, err := p.conn.Exec(schema); err != nil {
 		return err
@@ -42,12 +44,17 @@ func (p *Postgres) Migrate() error {
 
 // SaveMetadata saves metadata into a database.
 func (p *Postgres) SaveMetadata(ctx context.Context, m *Metadata) (*Metadata, error) {
-	return nil, nil
+	created := Metadata{}
+	err := p.conn.Get(&created, "INSERT INTO files (filename, filepath, size) VALUES($1, $2, $3) RETURNING id, filename, filepath, size", m.Filename, m.Path, m.Size)
+
+	return &created, err
 }
 
 // GetFiles returns a list of files.
 func (p *Postgres) GetFiles(ctx context.Context) ([]Metadata, error) {
-	return []Metadata{}, nil
+	files := []Metadata{}
+	err := p.conn.Select(&files, "SELECT * FROM files")
+	return files, err
 }
 
 // Close closes connection.

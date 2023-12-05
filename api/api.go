@@ -12,25 +12,42 @@ import (
 
 	"github.com/gen1us2k/storage-upload/config"
 	"github.com/gen1us2k/storage-upload/database"
+	"github.com/gen1us2k/storage-upload/pkg/storage"
+	"github.com/gen1us2k/storage-upload/pkg/storage/filesystem"
 	"github.com/gen1us2k/storage-upload/public"
+	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	middleware "github.com/oapi-codegen/echo-middleware"
 )
 
 type Server struct {
-	e      *echo.Echo
-	config *config.App
-	db     database.FileStorage
+	e       *echo.Echo
+	config  *config.App
+	db      database.FileStorage
+	storage storage.FileStorage
 }
 
 // New creates a Server.
 func New(c *config.App) (*Server, error) {
-	s := &Server{
-		config: c,
-		e:      echo.New(),
+	pg, err := database.NewPostgres(c.DSN)
+	if err != nil {
+		return nil, err
 	}
-	err := s.initHandlers()
+	if err := pg.Migrate(); err != nil {
+		return nil, err
+	}
+	fs, err := filesystem.NewFileSystemStorage(c.StorageDir)
+	if err != nil {
+		return nil, err
+	}
+	s := &Server{
+		config:  c,
+		e:       echo.New(),
+		db:      pg,
+		storage: fs,
+	}
+	err = s.initHandlers()
 
 	return s, err
 }
@@ -57,6 +74,8 @@ func (s *Server) initHandlers() error {
 	fmt.Println(basePath)
 	s.e.Use(echomiddleware.Logger())
 	s.e.Pre(echomiddleware.RemoveTrailingSlash())
+
+	openapi3filter.RegisterBodyDecoder("multipart/form-data", openapi3filter.FileBodyDecoder)
 
 	apiGroup := s.e.Group(basePath)
 	apiGroup.Use(middleware.OapiRequestValidatorWithOptions(swagger, &middleware.Options{
