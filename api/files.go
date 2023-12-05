@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/gen1us2k/storage-upload/database"
 	"github.com/labstack/echo/v4"
@@ -15,12 +18,17 @@ func (s *Server) ListFiles(ctx echo.Context) error {
 		return err
 	}
 	files := make([]File, len(f))
+	path, err := filepath.Abs(s.config.StorageDir)
+	if err != nil {
+		return err
+	}
+	path = strings.ReplaceAll(path, s.config.StorageDir, "")
 	for i := range f {
 		files[i] = File{
 			Id:       f[i].ID,
 			Filename: &f[i].Filename,
 			Size:     f[i].Size,
-			Path:     f[i].Path,
+			Path:     fmt.Sprintf("/%s", strings.ReplaceAll(f[i].Path, path, "")),
 		}
 	}
 

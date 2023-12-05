@@ -66,6 +66,7 @@ func (s *Server) initHandlers() error {
 
 	s.e.FileFS("/*", "index.html", indexFS)
 	s.e.GET("/assets/*", echo.WrapHandler(staticFilesHandler))
+	s.e.Static("/files", s.config.StorageDir)
 
 	basePath, err := swagger.Servers.BasePath()
 	if err != nil {
