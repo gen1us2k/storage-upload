@@ -97,19 +97,16 @@ func RegisterHandlers(router EchoRouter, si ServerInterface) {
 // Registers handlers, and prepends BaseURL to the paths, so that the paths
 // can be served under a prefix.
 func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL string) {
-
 	wrapper := ServerInterfaceWrapper{
 		Handler: si,
 	}
 
 	router.GET(baseURL+"/files", wrapper.ListFiles)
 	router.POST(baseURL+"/upload", wrapper.UploadFile)
-
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
-
 	"H4sIAAAAAAAC/8xSTW/UQAz9K5HhGJptizjkBhKVkFBvnFAPbuKkriYzw4yDWFX578iedKvdDYIDh57m",
 	"y/P83vN7gi5MMXjykqF9gtw90IS2/ZxSSLqJKURKwmTXXehJ1yGkCQVaYC/XV1CD7COVI42UYKlhopxx",
 	"tOr1MUtiP8Ky1JDox8yJemi/F8yX+rsDWLh/pE4U64YdnZMZ2JHHaatFDdyf8vzwfpNnRHn4O0nuoQZr",

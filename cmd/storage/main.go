@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"storage/api"
-	"storage/config"
 	"time"
+
+	"github.com/gen1us2k/storage-upload/api"
+	"github.com/gen1us2k/storage-upload/config"
 )
 
 func main() {

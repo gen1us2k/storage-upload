@@ -17,5 +17,4 @@ func TestParseConfig(t *testing.T) {
 	c, err = Parse()
 	require.NoError(t, err)
 	assert.Equal(t, ":8081", c.BindAddr)
-
 }
