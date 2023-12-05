@@ -16,3 +16,8 @@ format:                 ## Format source code
 	bin/gci write --section Standard --section Default --section "Prefix(storage)" $(FILES)
 test:
 	go test -v ./...
+
+build:
+	cd frontend && npm i && npm run build-only
+	cp -rf frontend/dist/* public/dist/
+	go build -o ./storage cmd/storage/main.go

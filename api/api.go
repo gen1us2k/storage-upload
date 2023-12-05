@@ -5,13 +5,17 @@ package api
 
 import (
 	"context"
-
-	"github.com/labstack/echo/v4"
-	echomiddleware "github.com/labstack/echo/v4/middleware"
-	middleware "github.com/oapi-codegen/echo-middleware"
+	"errors"
+	"fmt"
+	"io/fs"
+	"net/http"
 
 	"github.com/gen1us2k/storage-upload/config"
 	"github.com/gen1us2k/storage-upload/database"
+	"github.com/gen1us2k/storage-upload/public"
+	"github.com/labstack/echo/v4"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
+	middleware "github.com/oapi-codegen/echo-middleware"
 )
 
 type Server struct {
@@ -36,12 +40,31 @@ func (s *Server) initHandlers() error {
 	if err != nil {
 		return err
 	}
-	swagger.Servers = nil
+	fsys, err := fs.Sub(public.Static, "dist")
+	if err != nil {
+		return errors.Join(err, errors.New("error reading filesystem"))
+	}
+	staticFilesHandler := http.FileServer(http.FS(fsys))
+	indexFS := echo.MustSubFS(public.Index, "dist")
 
+	s.e.FileFS("/*", "index.html", indexFS)
+	s.e.GET("/assets/*", echo.WrapHandler(staticFilesHandler))
+
+	basePath, err := swagger.Servers.BasePath()
+	if err != nil {
+		return errors.Join(err, errors.New("could not get base path"))
+	}
+	fmt.Println(basePath)
 	s.e.Use(echomiddleware.Logger())
+	s.e.Pre(echomiddleware.RemoveTrailingSlash())
 
-	s.e.Use(middleware.OapiRequestValidator(swagger))
-	RegisterHandlers(s.e, s)
+	apiGroup := s.e.Group(basePath)
+	apiGroup.Use(middleware.OapiRequestValidatorWithOptions(swagger, &middleware.Options{
+		SilenceServersWarning: true,
+	}))
+
+	apiGroup.Use(middleware.OapiRequestValidator(swagger))
+	RegisterHandlers(apiGroup, s)
 	return nil
 }
 
