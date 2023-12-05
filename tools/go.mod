@@ -1,4 +1,4 @@
-module storage/tools
+module github.com/gen1us2k/storage-upload/tools
 
 go 1.21.3
 
